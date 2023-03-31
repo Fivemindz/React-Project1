@@ -6,33 +6,28 @@ import * as BooksAPI from "./BooksAPI";
 const SearchPage = () => {
 
   const [books, setBooks] = useState([]);
-  const [query, setQuery] = useState('');
-  const [showBooks, setShowBooks] = useState(false)
+
+  // useEffect(() => {
+  //   console.log(books)
+  // })
   
-  useEffect(() => {
-
-    const getSearchResults = async () => {
-      const res = await BooksAPI.search(query);
-      if (res.error === 'empty query') {
-        setShowBooks(false)
-        setBooks([])
-      } else {
-        setBooks(res)
-        setShowBooks(true)
-      }
-    }
-
-    if (query.length !== 0) {
-      getSearchResults();
+  const getSearchResults = async (query) => {     
+    const res = BooksAPI.search(query)
+    if (res.error !== 'empty query' && res !== undefined) {
+      setBooks(res)
     } else {
-      setShowBooks(false)
       setBooks([])
     }
-    
-    return setShowBooks(false);
-    
-    
-  },[query])
+  }
+  
+  const updateQuery = async (e) => {
+    const query = e.target.value
+    if (query) {
+      getSearchResults(query)
+    } else {
+      setBooks([])
+    }
+  }
 
   return (
     <div className="search-books">
@@ -42,13 +37,13 @@ const SearchPage = () => {
           <input
             type="text"
             placeholder="Search by title, author, or ISBN"
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => updateQuery(e)}
           />
         </div>
       </div>
       <div className="search-books-results">
         <ol className="books-grid">
-          {showBooks && books.map((book) => (
+          {books.map((book) => (
             <li key={book.id}>
               <Book book={book} />
             </li>
