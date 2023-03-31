@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Book from './Book';
 import * as BooksAPI from "./BooksAPI";
 
 const SearchPage = () => {
 
-  const [books, setBooks] = useState();
+  const [books, setBooks] = useState([]);
+  const [query, setQuery] = useState('');
+  const [showBooks, setShowBooks] = useState(false)
+  
+  useEffect(() => {
 
-  const navigate = useNavigate();
+    const getSearchResults = async () => {
+      const res = await BooksAPI.search(query);
+      if (res.error === 'empty query') {
+        setShowBooks(false)
+        setBooks([])
+      } else {
+        setBooks(res)
+        setShowBooks(true)
+      }
+    }
 
-  const searchBooks = async (query) => { 
-    const res = await BooksAPI.search(query.toLowerCase())
-    setBooks(res);
-  };
-
-
+    if (query.length !== 0) {
+      getSearchResults();
+    } else {
+      setShowBooks(false)
+      setBooks([])
+    }
+    
+    return setShowBooks(false);
+    
+    
+  },[query])
 
   return (
     <div className="search-books">
@@ -24,17 +42,17 @@ const SearchPage = () => {
           <input
             type="text"
             placeholder="Search by title, author, or ISBN"
-            onChange={(e) => searchBooks(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
           />
         </div>
       </div>
       <div className="search-books-results">
         <ol className="books-grid">
-          {books.map((book) => (
+          {showBooks && books.map((book) => (
             <li key={book.id}>
               <Book book={book} />
             </li>
-          ))} 
+          ))}
         </ol>
       </div>
     </div>
