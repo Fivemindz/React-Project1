@@ -6,27 +6,15 @@ import * as BooksAPI from './BooksAPI'
 const BooksTable = () => {
   
   const [books, setBooks] = useState([]);
-
-  useEffect(() => {
-    const getBooks =  async () => {
-      const res =  await BooksAPI.getAll();
+  const categories = ["currentlyReading", "wantToRead", "read"]
+  
+  useEffect( () => {
+    const getData = async () => {
+      const res = await BooksAPI.getAll();
       setBooks(res);
     };
-
-    getBooks();
-  }, [books]);
-
-  const current = books.filter((book) => (
-    book.shelf === "currentlyReading"
-  ));
-
-  const want = books.filter((book) => (
-    book.shelf === "wantToRead"
-  ));
-
-  const read = books.filter((book) => (
-    book.shelf === "read"
-  ));    
+    getData();
+  });
   
   const updateBook = async (book, shelf) => {
     BooksAPI.update(book, shelf);
@@ -42,9 +30,9 @@ const BooksTable = () => {
       </div>
       <div className="list-books-content">
         <div>
-          <BookShelf books={current} title={"Currently Reading"} updateBook={updateBook}/>
-          <BookShelf books={want} title={"Want To Read"} updateBook={updateBook} />
-          <BookShelf books={read} title={"Read"} updateBook={updateBook} />
+          {categories.map(cat => (
+            <BookShelf key={cat} shelf={cat} books={books.filter(book => book.shelf === cat)} updateBook={updateBook}/>
+          ))}
         </div>
       </div>
       <div className="open-search">
