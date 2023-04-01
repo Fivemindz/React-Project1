@@ -6,15 +6,27 @@ import * as BooksAPI from './BooksAPI'
 const BooksTable = () => {
   
   const [books, setBooks] = useState([]);
+  const [active, setActive] = useState(true);
   const categories = ["currentlyReading", "wantToRead", "read"]
   
   useEffect( () => {
+
     const getData = async () => {
       const res = await BooksAPI.getAll();
-      setBooks(res);
+      setBooks(res);      
     };
-    getData();
-  });
+
+    if(active) {
+      getData();
+    }    
+    
+    console.log('rerender')
+
+    return () => {
+      setActive(false)
+    }
+    
+  },[active]);
   
   const updateBook = async (book, shelf) => {
     BooksAPI.update(book, shelf);
